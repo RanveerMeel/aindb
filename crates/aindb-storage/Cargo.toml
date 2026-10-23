@@ -1,0 +1,9 @@
+[package]
+name = "aindb-storage"
+description = "AINDB storage backend trait and in-memory backend"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]

@@ -1,0 +1,20 @@
+[package]
+name = "aindb-acceptance"
+description = "Executable acceptance tests (docs/ACCEPTANCE.md)"
+publish = false
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+
+[dev-dependencies]
+aindb-model.workspace = true
+aindb-protocol.workspace = true
+aindb-policy.workspace = true
+aindb-verify.workspace = true
+aindb-audit.workspace = true
+aindb-storage.workspace = true
+aindb-engine.workspace = true
+aindb-cdk.workspace = true

@@ -1,0 +1,20 @@
+[package]
+name = "aindb-cli"
+description = "aindb command-line tool"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+aindb-engine.workspace = true
+aindb-audit.workspace = true
+aindb-cdk = { workspace = true, optional = true }
+
+[features]
+default = []
+cdk = ["dep:aindb-cdk"]
+
+[[bin]]
+name = "aindb"
+path = "src/main.rs"
