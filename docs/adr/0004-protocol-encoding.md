@@ -1,6 +1,6 @@
 # ADR-0004: Agent protocol encodings
 
-- Status: Proposed
+- Status: Proposed (typed form implemented in M1, see docs/PROTOCOL.md)
 - Date: 2026-10-23
 
 ## Context
