@@ -61,6 +61,9 @@ aindb/
 cargo test --workspace
 ```
 
+Contributors: run `tools/install_git_hooks.sh` once, and see
+[CONTRIBUTING.md](CONTRIBUTING.md) for the commit standard and PR checks.
+
 ## Editions
 
 AINDB is **open core**. This repository (the engine, replication, protocol,
