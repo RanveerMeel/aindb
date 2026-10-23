@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Block pushes to main, then run the same checks as CI's build job.
+set -euo pipefail
+repo_root="$(git rev-parse --show-toplevel)"
+"${repo_root}/tools/validate_push_branch.sh"
+
+if [[ "${AINDB_SKIP_PUSH_CHECKS:-0}" == 1 ]]; then
+  echo "pre-push: AINDB_SKIP_PUSH_CHECKS=1, skipping cargo checks (CI still runs them)." >&2
+  exit 0
+fi
+cd "${repo_root}"
+"${repo_root}/tools/ci_local.sh"

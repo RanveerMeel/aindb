@@ -20,11 +20,11 @@ license = "Apache-2.0"
 rust-version = "1.80"
 
 [workspace.dependencies]
-aindb-model = { path = "crates/aindb-model" }
-aindb-protocol = { path = "crates/aindb-protocol" }
-aindb-policy = { path = "crates/aindb-policy" }
-aindb-verify = { path = "crates/aindb-verify" }
-aindb-audit = { path = "crates/aindb-audit" }
-aindb-storage = { path = "crates/aindb-storage" }
-aindb-engine = { path = "crates/aindb-engine" }
-aindb-cdk = { path = "crates/aindb-cdk" }
+aindb-model = { path = "crates/aindb-model", version = "0.0.1" }
+aindb-protocol = { path = "crates/aindb-protocol", version = "0.0.1" }
+aindb-policy = { path = "crates/aindb-policy", version = "0.0.1" }
+aindb-verify = { path = "crates/aindb-verify", version = "0.0.1" }
+aindb-audit = { path = "crates/aindb-audit", version = "0.0.1" }
+aindb-storage = { path = "crates/aindb-storage", version = "0.0.1" }
+aindb-engine = { path = "crates/aindb-engine", version = "0.0.1" }
+aindb-cdk = { path = "crates/aindb-cdk", version = "0.0.1" }

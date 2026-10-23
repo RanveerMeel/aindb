@@ -1,0 +1,49 @@
+name: Commit Standards
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  commits:
+    name: commit-messages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Conventional Commits + DCO sign-off on every PR commit
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          commits="$(git rev-list --no-merges "${BASE_SHA}..${HEAD_SHA}")"
+          [[ -n "${commits}" ]] || { echo "No commits to validate."; exit 0; }
+          status=0
+          for commit in ${commits}; do
+            msg_file="$(mktemp)"
+            git log --format=%B -n 1 "${commit}" > "${msg_file}"
+            echo "::group::${commit}"
+            tools/validate_commit_msg.sh "${msg_file}" || status=1
+            echo "::endgroup::"
+          done
+          exit "${status}"
+
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR title follows Conventional Commits (used for squash merges)
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          re='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)\(([a-z0-9]+(-[a-z0-9]+)*)\)(!)?: [a-z][[:print:]]+$'
+          if [[ ! "${TITLE}" =~ $re ]] || (( ${#TITLE} > 72 )); then
+            echo "PR title must be 'type(scope): summary', max 72 chars. Got: ${TITLE}" >&2
+            exit 1
+          fi
