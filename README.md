@@ -63,8 +63,8 @@ cargo test --workspace
 
 ## Editions
 
-AINDB is **open core**. This repository (the engine, protocol, audit format
-and verifier, CDK adapter and all cryptography) is Apache-2.0 and fully usable
+AINDB is **open core**. This repository (the engine, replication, protocol,
+audit format and verifier, CDK adapter and all cryptography) is Apache-2.0 and fully usable
 on its own. **AINDB Enterprise** is a separate, paid edition for regulated and
 large deployments. See [ROADMAP.md § Editions](ROADMAP.md#editions).
 

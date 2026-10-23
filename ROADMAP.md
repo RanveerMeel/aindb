@@ -68,17 +68,18 @@ proposal and will be finalized before v0.1.
 
 | Open-source core (Apache-2.0, this repository) | AINDB Enterprise (paid, separate, proprietary) |
 |---|---|
-| Engine, data model, transactions, storage trait and backends | High availability: replication, failover, clustering |
-| Agent protocol (typed and binary) and its specification | Hardware key custody (HSM / TPM) for checkpoint keys |
-| Audit format, hash chain, signed checkpoints, `aindb verify` | Encryption at rest with external key management |
-| Verifier contract and reference deterministic verifier | Compliance report packs (sector-specific audit exports) |
-| CDK adapter and standalone authorization | Certified builds and evaluation evidence |
-| All cryptography and protocol formats | Support, SLAs, on-premises deployment assistance |
+| Engine, data model, transactions, storage trait and backends | Hardware key custody (HSM / TPM) for checkpoint keys |
+| Replication and failover (after v0.1) | Encryption at rest with external key management |
+| Agent protocol (typed and binary) and its specification | Compliance report packs (sector-specific audit exports) |
+| Audit format, hash chain, signed checkpoints, `aindb verify` | Certified builds and evaluation evidence |
+| Verifier contract and reference deterministic verifier | Support, SLAs, on-premises deployment assistance |
+| CDK adapter and standalone authorization | |
+| All cryptography and protocol formats | |
 
 Rules that keep this honest:
 
-- The open core is a complete database, not a demo. Single-node correctness,
-  auditability and tamper detection are never paywalled.
+- The open core is a complete database, not a demo. Correctness,
+  replication, auditability and tamper detection are never paywalled.
 - Cryptographic algorithms and data/protocol formats are always public, so
   open-source tools can verify data written by AINDB Enterprise.
 - Security fixes land in the open core first or at the same time.
@@ -93,5 +94,6 @@ Rules that keep this honest:
 - Custom storage engine on the same trait.
 - Declarative intent → validated operations.
 - Independent-verifier project (layered, incl. AI reviewer).
-- Externally witnessed checkpoints (replication is an Enterprise feature, see Editions).
+- Replication and failover (open core).
+- Externally witnessed checkpoints.
 - Quantum provenance ledger schemas.
