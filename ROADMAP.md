@@ -61,10 +61,37 @@ Milestones are sequential. A milestone is done when its acceptance tests
 - Measurements EV-01..05 with reproducible scripts; written report.
 - Release per SPEC §15.
 
+## Editions
+
+AINDB follows an **open-core** model, like CDK. The split below is a
+proposal and will be finalized before v0.1.
+
+| Open-source core (Apache-2.0, this repository) | AINDB Enterprise (paid, separate, proprietary) |
+|---|---|
+| Engine, data model, transactions, storage trait and backends | High availability: replication, failover, clustering |
+| Agent protocol (typed and binary) and its specification | Hardware key custody (HSM / TPM) for checkpoint keys |
+| Audit format, hash chain, signed checkpoints, `aindb verify` | Encryption at rest with external key management |
+| Verifier contract and reference deterministic verifier | Compliance report packs (sector-specific audit exports) |
+| CDK adapter and standalone authorization | Certified builds and evaluation evidence |
+| All cryptography and protocol formats | Support, SLAs, on-premises deployment assistance |
+
+Rules that keep this honest:
+
+- The open core is a complete database, not a demo. Single-node correctness,
+  auditability and tamper detection are never paywalled.
+- Cryptographic algorithms and data/protocol formats are always public, so
+  open-source tools can verify data written by AINDB Enterprise.
+- Security fixes land in the open core first or at the same time.
+- Enterprise code lives in a separate private repository and depends on the
+  public crates; nothing enterprise-only is committed here.
+- Contributions are accepted under the [CLA](CLA.md), which lets the project
+  steward also ship contributed code in AINDB Enterprise while guaranteeing it
+  stays available here under Apache-2.0.
+
 ## After v0.1 (not committed)
 
 - Custom storage engine on the same trait.
 - Declarative intent → validated operations.
 - Independent-verifier project (layered, incl. AI reviewer).
-- Replication and externally witnessed checkpoints.
+- Externally witnessed checkpoints (replication is an Enterprise feature, see Editions).
 - Quantum provenance ledger schemas.

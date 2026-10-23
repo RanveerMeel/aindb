@@ -61,6 +61,21 @@ aindb/
 cargo test --workspace
 ```
 
+## Editions
+
+AINDB is **open core**. This repository (the engine, protocol, audit format
+and verifier, CDK adapter and all cryptography) is Apache-2.0 and fully usable
+on its own. **AINDB Enterprise** is a separate, paid edition for regulated and
+large deployments. See [ROADMAP.md § Editions](ROADMAP.md#editions).
+
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE).
+The open-source edition of AINDB is licensed under the **Apache License 2.0**,
+the same license as [CDK](https://github.com/RanveerMeel/cdk).
+
+- Full license text: [`LICENSE`](LICENSE)
+- Attribution and trademark notes: [`NOTICE`](NOTICE)
+- Contributions are accepted under the [Contributor License Agreement](CLA.md).
+  You keep your copyright, and your code stays available here under Apache-2.0.
+- How to contribute: [`CONTRIBUTING.md`](CONTRIBUTING.md)
+- AINDB Enterprise is commercially licensed and is not part of this repository.
