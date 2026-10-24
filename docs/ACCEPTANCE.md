@@ -1,7 +1,9 @@
 # AINDB Acceptance Tests
 
-Each test has an ID, the milestone where it must pass, and an executable stub
-in `tests/acceptance/` (marked `#[ignore]` until its milestone). A milestone
+Each test has an ID, the milestone where it must pass, and an executable test
+in `tests/acceptance/` (marked `#[ignore]` until its milestone).
+
+Status: **M1 complete** — AT-MOD-01..05 and AT-PROT-01, 02, 04, 05 pass. A milestone
 is complete only when all its tests pass on the in-memory **and** the durable
 backend (from M3).
 
@@ -13,10 +15,10 @@ amount}` with invariant "sum of balances over touched accounts unchanged".
 
 | ID | Test | Pass condition |
 |---|---|---|
-| AT-MOD-01 | Create object with valid schema | Version 1, all required fields present |
+| AT-MOD-01 | Create object with valid schema | State validates, defaults filled (version 1 assigned by the engine in AT-TX-01) |
 | AT-MOD-02 | Missing required field | `SchemaViolation{field_path}` |
 | AT-MOD-03 | Wrong field type | `SchemaViolation{field_path}` |
-| AT-MOD-04 | Decimal overflow in arithmetic | Transaction aborted, no state change |
+| AT-MOD-04 | Decimal overflow in arithmetic | Checked arithmetic and parsing report overflow (engine abort without state change: AT-TX-03) |
 | AT-MOD-05 | Object larger than limit | `LimitExceeded` |
 | AT-PROT-01 | Typed JSON round trip | decode(encode(r)) == r for generated requests |
 | AT-PROT-02 | Reject unknown field / trailing bytes / duplicate key | `Malformed`, nothing executed |

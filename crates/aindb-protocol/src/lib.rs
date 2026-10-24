@@ -4,18 +4,30 @@
 //! wire bytes (SPEC P3).
 #![forbid(unsafe_code)]
 
+pub mod json;
+mod typed;
+
+pub use typed::TypedJson;
+
 use aindb_model::{ObjectId, Schema, SchemaId, Seq, TxId, Value, Version};
 use std::collections::BTreeMap;
+use std::fmt;
 
 /// Protocol identifier and domain separator.
 pub const PROTOCOL: &str = "AINDB-OP-v1";
 
 /// Default request limits (SPEC §6.4).
 pub mod limits {
+    /// Operations per request.
     pub const MAX_OPS: usize = 256;
+    /// Canonical typed encoding of one object state or patch.
     pub const MAX_OBJECT_BYTES: usize = 1 << 20;
+    /// Encoded request.
     pub const MAX_TX_BYTES: usize = 8 << 20;
-    pub const MAX_SCAN: usize = 10_000;
+    /// Entries returned by one scan or history read.
+    pub const MAX_SCAN: u32 = 10_000;
+    /// Preconditions per request.
+    pub const MAX_PRECONDITIONS: usize = 256;
 }
 
 /// Credential presented by the agent. Authentication turns it into a
@@ -35,7 +47,7 @@ pub enum PrincipalClaim {
 pub enum Operation {
     Create {
         schema: SchemaId,
-        id: Option<ObjectId>,
+        id: ObjectId,
         state: BTreeMap<String, Value>,
     },
     Update {
@@ -65,8 +77,7 @@ pub enum Operation {
     DefineSchema(Schema),
     /// Schema-registered composite operation, e.g. `transfer@1`.
     Named {
-        op: String,
-        version: u16,
+        op: SchemaId,
         inputs: BTreeMap<String, Value>,
     },
 }
@@ -78,7 +89,7 @@ pub enum HistorySelector {
     Principal(String),
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Precondition {
     Exists(ObjectId),
     NotExists(ObjectId),
@@ -108,7 +119,7 @@ pub struct Request {
     pub options: Options,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Status {
     Committed,
     Rejected,
@@ -150,16 +161,46 @@ pub struct TxResult {
     pub explanation: Option<String>,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+/// Why a request could not be decoded. Every variant means nothing was
+/// executed. Paths use `$.ops.0.create.state.balance` notation.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum DecodeError {
-    UnsupportedVersion,
+    UnsupportedVersion(String),
     UnknownField(String),
     DuplicateKey(String),
     TrailingBytes,
-    NonCanonical,
-    LimitExceeded,
+    NonCanonical(String),
+    LimitExceeded(String),
     Invalid(String),
 }
+
+impl DecodeError {
+    /// Error code returned to the agent (SPEC §5.2).
+    pub fn code(&self) -> ErrorCode {
+        match self {
+            DecodeError::LimitExceeded(_) => ErrorCode::LimitExceeded,
+            other => ErrorCode::Malformed(other.to_string()),
+        }
+    }
+}
+
+impl fmt::Display for DecodeError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            DecodeError::UnsupportedVersion(v) => {
+                write!(f, "unsupported protocol {v:?}, expected {PROTOCOL}")
+            }
+            DecodeError::UnknownField(p) => write!(f, "unknown field {p}"),
+            DecodeError::DuplicateKey(p) => write!(f, "duplicate key {p}"),
+            DecodeError::TrailingBytes => f.write_str("trailing bytes after request"),
+            DecodeError::NonCanonical(m) => write!(f, "non-canonical encoding: {m}"),
+            DecodeError::LimitExceeded(m) => write!(f, "limit exceeded: {m}"),
+            DecodeError::Invalid(m) => write!(f, "invalid request: {m}"),
+        }
+    }
+}
+
+impl std::error::Error for DecodeError {}
 
 /// A wire encoding of the protocol. Implementations MUST be strict:
 /// reject unknown fields, duplicate keys, trailing bytes and oversize input.
@@ -169,10 +210,30 @@ pub trait Codec {
     fn encode_result(&self, res: &TxResult) -> Vec<u8>;
 }
 
-/// Shape checks independent of encoding (op count, etc.).
+/// Shape checks independent of encoding. Codecs call this after decoding.
 pub fn check_limits(req: &Request) -> Result<(), DecodeError> {
     if req.ops.is_empty() || req.ops.len() > limits::MAX_OPS {
-        return Err(DecodeError::LimitExceeded);
+        return Err(DecodeError::LimitExceeded(format!(
+            "{} operations, allowed 1..={}",
+            req.ops.len(),
+            limits::MAX_OPS
+        )));
+    }
+    if req.preconditions.len() > limits::MAX_PRECONDITIONS {
+        return Err(DecodeError::LimitExceeded(format!(
+            "more than {} preconditions",
+            limits::MAX_PRECONDITIONS
+        )));
+    }
+    for op in &req.ops {
+        if let Operation::Scan { limit, .. } | Operation::History { limit, .. } = op {
+            if *limit == 0 || *limit > limits::MAX_SCAN {
+                return Err(DecodeError::LimitExceeded(format!(
+                    "read limit {limit}, allowed 1..={}",
+                    limits::MAX_SCAN
+                )));
+            }
+        }
     }
     Ok(())
 }
@@ -183,11 +244,11 @@ mod tests {
 
     fn req(n: usize) -> Request {
         Request {
-            tx_id: TxId([0; 16]),
+            tx_id: TxId::parse("tx-1").unwrap(),
             principal: PrincipalClaim::ApiKey("k".into()),
             ops: vec![
                 Operation::Get {
-                    id: ObjectId([1; 16]),
+                    id: ObjectId::parse("acct:a").unwrap(),
                     at: None
                 };
                 n
@@ -201,10 +262,13 @@ mod tests {
     #[test]
     fn op_count_limits() {
         assert!(check_limits(&req(1)).is_ok());
-        assert_eq!(check_limits(&req(0)), Err(DecodeError::LimitExceeded));
-        assert_eq!(
+        assert!(matches!(
+            check_limits(&req(0)),
+            Err(DecodeError::LimitExceeded(_))
+        ));
+        assert!(matches!(
             check_limits(&req(limits::MAX_OPS + 1)),
-            Err(DecodeError::LimitExceeded)
-        );
+            Err(DecodeError::LimitExceeded(_))
+        ));
     }
 }

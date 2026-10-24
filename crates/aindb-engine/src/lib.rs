@@ -55,7 +55,7 @@ impl Engine {
 
     pub fn submit(&self, req: &Request) -> TxResult {
         let fail = |status, code| TxResult {
-            tx_id: req.tx_id,
+            tx_id: req.tx_id.clone(),
             status,
             reads: vec![],
             writes: vec![],
@@ -92,10 +92,10 @@ mod tests {
             Config::default(),
         );
         let req = Request {
-            tx_id: TxId([7; 16]),
+            tx_id: TxId::parse("tx-7").unwrap(),
             principal: PrincipalClaim::ApiKey("nope".into()),
             ops: vec![Operation::Get {
-                id: ObjectId([1; 16]),
+                id: ObjectId::parse("acct:a").unwrap(),
                 at: None,
             }],
             preconditions: vec![],

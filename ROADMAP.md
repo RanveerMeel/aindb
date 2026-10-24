@@ -3,7 +3,7 @@
 Milestones are sequential. A milestone is done when its acceptance tests
 ([docs/ACCEPTANCE.md](docs/ACCEPTANCE.md)) pass in CI.
 
-## M0 — Specification and skeleton  ◄ current
+## M0 — Specification and skeleton
 
 - [x] Architecture & requirements spec ([docs/SPEC.md](docs/SPEC.md))
 - [x] Threat model, CDK integration contract, acceptance-test list
@@ -14,14 +14,17 @@ Milestones are sequential. A milestone is done when its acceptance tests
 - [ ] Literature / prior-art review (event-sourced DBs, ledger DBs such as
       QLDB/immudb, Datomic, verifiable logs, agent-tool frameworks)
 
-## M1 — Model and protocol
+## M1 — Model and protocol  ✓
 
-- `aindb-model`: `Value`, `Decimal` checked arithmetic, schemas, validation.
-- `aindb-protocol`: `Request`/`Result`, strict typed (JSON) codec, limits.
-- `aindb-storage`: in-memory backend implementing the full trait.
-- Tests: AT-MOD-*, AT-PROT-01/02/04/05.
+- [x] `aindb-model`: identifiers (`ns:key` object ids, tx ids, `name@major`),
+      `Value`, canonical `Decimal` with checked arithmetic, field types,
+      schema checks, state and patch validation.
+- [x] `aindb-protocol`: `Request`/`TxResult`, strict JSON parser (no serde),
+      typed codec ([docs/PROTOCOL.md](docs/PROTOCOL.md)), limits.
+- [x] `aindb-storage`: in-memory backend implementing the full trait.
+- [x] Tests: AT-MOD-*, AT-PROT-01/02/04/05 (2 000 generated round trips).
 
-## M2 — Transaction engine
+## M2 — Transaction engine  ◄ next
 
 - Snapshot reads, private write sets, read-set tracking.
 - Single-writer commit with optimistic validation (serializable).

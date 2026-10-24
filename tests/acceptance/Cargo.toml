@@ -8,6 +8,8 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+aindb-model.workspace = true
+aindb-protocol.workspace = true
 
 [dev-dependencies]
 aindb-model.workspace = true

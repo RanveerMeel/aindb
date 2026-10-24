@@ -115,7 +115,7 @@ mod tests {
                     hash_alg: HashAlg::Sha256,
                     time_ns: 0,
                     kind: EventKind::TxCommitted,
-                    tx_id: TxId([0; 16]),
+                    tx_id: TxId::parse("tx-0").unwrap(),
                     principal: Principal {
                         id: "agent".into(),
                         delegation: vec![],

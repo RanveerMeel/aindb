@@ -157,10 +157,12 @@ authorization and the "no money created" check are evidence.
 
 ### 4.2 Identifiers
 
-- `ObjectId`: 128-bit, engine-assigned on create (random) or
-  caller-supplied within a namespace (`ns:key`, max 255 bytes UTF-8).
-- `SchemaId`: `name@major` (e.g. `account@1`).
-- `TxId`: 128-bit, caller-supplied for idempotency or engine-assigned.
+- `ObjectId`: `ns:key`, chosen by the creating agent. `ns` is
+  `[a-z0-9_-]{1,32}` and is the unit of authorization; `key` is
+  `[A-Za-z0-9._-]+`; at most 255 bytes in total.
+- `SchemaId`: `name@major` (e.g. `account@1`); named operations use the
+  same form (`transfer@1`).
+- `TxId`: `[A-Za-z0-9._:-]{1,64}`, caller-supplied idempotency key.
 - `Seq`: u64, dense, strictly increasing history sequence number.
 - `Version`: u64 per object, starts at 1, +1 per committed change.
 
@@ -195,7 +197,7 @@ Built-in operation types for v0.1:
 
 | Op | Effect |
 |---|---|
-| `create(schema, id?, state)` | New object at version 1 |
+| `create(schema, id, state)` | New object at version 1 |
 | `update(id, expect_version?, patch)` | Field-level patch |
 | `delete(id, expect_version?)` | Tombstone (history kept) |
 | `get(id, at?)` | Read current or historical version |
@@ -271,13 +273,15 @@ agents can react without parsing prose.
 ### 5.3 Encodings
 
 - **Typed (canonical text):** JSON with a strict schema. For debugging,
-  humans and simple clients.
+  humans and simple clients. Reference: [PROTOCOL.md](PROTOCOL.md).
 - **Binary (`AINDB-OP-v1` binary):** length-prefixed, deterministic,
   versioned encoding of the same structure (ADR-0004).
 - Both decode to the same `aindb_protocol::Request`. Acceptance test
   AT-PROT-03 asserts identical results and identical history for both.
 - Decoders MUST reject unknown fields, trailing bytes, duplicate map keys,
-  non-canonical integers and inputs over size limits.
+  non-canonical integers, floating-point numbers and inputs over size
+  limits. Object size limits are measured on the canonical typed encoding,
+  so they do not depend on whitespace or wire format.
 
 ### 5.4 Transport
 
