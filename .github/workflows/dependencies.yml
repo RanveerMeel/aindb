@@ -15,7 +15,7 @@ jobs:
     name: cargo-deny
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # Run on the host runner (not the cargo-deny-action container) so
       # rust-toolchain.toml resolves through the runner's rustup.
       - run: rustup show
